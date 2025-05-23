@@ -4,10 +4,11 @@
  */
 package GUI;
 
-import com.Images;
+import com.weather.liveweatherforecast.Images;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import javax.swing.BoxLayout;
@@ -15,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -31,14 +33,16 @@ public class Dashboard extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         Images.scaleImage(Images.bgPath, bg);
-        defaultResult();
+        fetchCities("");
     }
 
-    private void generateButtons(String city, String country) {
+    private void generateButtons(String city, String country, int id) {
+        jScrollPane1.getVerticalScrollBar().setUnitIncrement(16);
+
         JButton button = new JButton(city + " (" + country + ")");
         button.setBackground(new java.awt.Color(0, 102, 204));
         button.setForeground(java.awt.Color.WHITE);
-        button.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
+        button.setFont(new java.awt.Font("monospaced", java.awt.Font.BOLD, 12));
         button.setFocusPainted(false);
         button.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 15, 5, 15));
         button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -48,14 +52,14 @@ public class Dashboard extends javax.swing.JFrame {
 
         button.addActionListener(e -> {
 
-            WeatherResult wr = new WeatherResult(city, country);
+            WeatherResult wr = new WeatherResult(city, country, id);
             wr.show();
             this.hide();
 
         });
 
         Color normalColor = new java.awt.Color(0, 102, 204);
-        Color hoverColor = new java.awt.Color(0, 80, 180); // slightly darker blue
+        Color hoverColor = new java.awt.Color(0, 80, 180);
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -68,12 +72,13 @@ public class Dashboard extends javax.swing.JFrame {
                 button.setBackground(normalColor);
             }
         });
-        
+
         resultPanel.add(button);
     }
 
-    private void defaultResult() {
+    private void fetchCities(String city) {
 
+        boolean found = false;
         resultPanel.removeAll();
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
         try {
@@ -81,17 +86,29 @@ public class Dashboard extends javax.swing.JFrame {
             JSONArray cities = new JSONArray(content);
 
             for (int i = 0; i < cities.length(); i++) {
-                JSONObject city = cities.getJSONObject(i);
-                String name = city.getString("name");
-                String country = city.getString("country");
-
-                if (country.equalsIgnoreCase("PH")) {
-
-                    generateButtons(name, country);
+                JSONObject obj = cities.getJSONObject(i);
+                String name = obj.getString("name");
+                String country = obj.getString("country");
+                int id = obj.getInt("id");
+                
+                if (city.equals("") && name.equalsIgnoreCase("Cainta")) {
+                    city = "Cainta";
+                    generateButtons(name, country, id);
+                } else if (name.equalsIgnoreCase(city)) {
+                    found = true;
+                    generateButtons(name, country, id);
                 }
+
             }
 
-        } catch (Exception e) {
+            if (!found) {
+                JLabel noCityLabel = new JLabel("No city found with that name.");
+                noCityLabel.setForeground(Color.WHITE);
+                noCityLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                resultPanel.add(noCityLabel);
+            }
+
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
@@ -287,38 +304,8 @@ public class Dashboard extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String cityName = cityInput.getText();
-        resultPanel.removeAll();
-        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
-        try {
-            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/docs/city.list.json")));
-            JSONArray cities = new JSONArray(content);
-
-            boolean found = false;
-            for (int i = 0; i < cities.length(); i++) {
-                JSONObject city = cities.getJSONObject(i);
-                String name = city.getString("name");
-                String country = city.getString("country");
-                if (name.equalsIgnoreCase(cityName)) {
-                    found = true;
-                     generateButtons(name, country);
-                }
-            }
-
-            if (!found) {
-                JLabel noCityLabel = new JLabel("No city found with that name.");
-                noCityLabel.setForeground(Color.WHITE);
-                noCityLabel.setHorizontalAlignment(SwingConstants.CENTER);
-                resultPanel.add(noCityLabel);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        resultPanel.revalidate();
-        resultPanel.repaint();
-
+        String city = cityInput.getText();
+        fetchCities(city);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
