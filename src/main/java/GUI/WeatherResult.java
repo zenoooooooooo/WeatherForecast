@@ -4,6 +4,8 @@
  */
 package GUI;
 
+import com.Images;
+
 /**
  *
  * @author akira
@@ -11,7 +13,7 @@ package GUI;
 public class WeatherResult extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(WeatherResult.class.getName());
-    private String bgPath = "/home/akira/NetBeansProjects/LiveWeatherForecast/src/main/resources/images/bg.jpg";
+  
 
     /**
      * Creates new form WeatherResult
@@ -23,7 +25,7 @@ public class WeatherResult extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
-        ImageScale.scaleImage(bgPath, bg);
+        Images.scaleImage(Images.bgPath, bg);
         jLabel1.setText("Weather Forecast - " + city + ", " + country);
 
     }

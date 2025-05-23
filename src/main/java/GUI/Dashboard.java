@@ -4,12 +4,16 @@
  */
 package GUI;
 
+import com.Images;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,7 +30,73 @@ public class Dashboard extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
-        ImageScale.scaleImage(bg);
+        Images.scaleImage(Images.bgPath, bg);
+        defaultResult();
+    }
+
+    private void generateButtons(String city, String country) {
+        JButton button = new JButton(city + " (" + country + ")");
+        button.setBackground(new java.awt.Color(0, 102, 204));
+        button.setForeground(java.awt.Color.WHITE);
+        button.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
+        button.setFocusPainted(false);
+        button.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        button.addActionListener(e -> {
+
+            WeatherResult wr = new WeatherResult(city, country);
+            wr.show();
+            this.hide();
+
+        });
+
+        Color normalColor = new java.awt.Color(0, 102, 204);
+        Color hoverColor = new java.awt.Color(0, 80, 180); // slightly darker blue
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(hoverColor);
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(normalColor);
+            }
+        });
+        
+        resultPanel.add(button);
+    }
+
+    private void defaultResult() {
+
+        resultPanel.removeAll();
+        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/docs/city.list.json")));
+            JSONArray cities = new JSONArray(content);
+
+            for (int i = 0; i < cities.length(); i++) {
+                JSONObject city = cities.getJSONObject(i);
+                String name = city.getString("name");
+                String country = city.getString("country");
+
+                if (country.equalsIgnoreCase("PH")) {
+
+                    generateButtons(name, country);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        resultPanel.revalidate();
+        resultPanel.repaint();
     }
 
     /**
@@ -45,9 +115,11 @@ public class Dashboard extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         cityInput = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
-        resultPanel = new javax.swing.JPanel();
-        jPanel6 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        resultPanel = new javax.swing.JPanel();
         bg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -144,45 +216,71 @@ public class Dashboard extends javax.swing.JFrame {
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 150, 330, 140));
 
-        resultPanel.setBackground(new java.awt.Color(0, 51, 153));
-        resultPanel.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(0, 0, 102)));
-        resultPanel.setFocusCycleRoot(true);
+        jPanel4.setBackground(new java.awt.Color(0, 51, 153));
+        jPanel4.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(0, 0, 102)));
+        jPanel4.setFocusCycleRoot(true);
 
-        jPanel6.setBackground(new java.awt.Color(0, 51, 102));
+        jPanel5.setBackground(new java.awt.Color(0, 51, 102));
 
         jLabel3.setFont(new java.awt.Font("Monospaced", 1, 15)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("Cities");
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
         );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel3)
                 .addContainerGap())
         );
 
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setToolTipText("");
+        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        jScrollPane1.setVerifyInputWhenFocusTarget(false);
+
+        resultPanel.setBackground(new java.awt.Color(0, 0, 102));
+
         javax.swing.GroupLayout resultPanelLayout = new javax.swing.GroupLayout(resultPanel);
         resultPanel.setLayout(resultPanelLayout);
         resultPanelLayout.setHorizontalGroup(
             resultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         resultPanelLayout.setVerticalGroup(
             resultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(resultPanelLayout.createSequentialGroup()
-                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 276, Short.MAX_VALUE))
+            .addGap(0, 264, Short.MAX_VALUE)
         );
 
-        getContentPane().add(resultPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 300, 310));
+        jScrollPane1.setViewportView(resultPanel);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        getContentPane().add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 300, 310));
         getContentPane().add(bg, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 700, 350));
 
         pack();
@@ -190,13 +288,8 @@ public class Dashboard extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String cityName = cityInput.getText();
-        for (Component c : resultPanel.getComponents()) {
-            if (c instanceof JButton) {
-                resultPanel.remove(c);
-            }
-        }
+        resultPanel.removeAll();
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
-
         try {
             String content = new String(Files.readAllBytes(Paths.get("src/main/resources/docs/city.list.json")));
             JSONArray cities = new JSONArray(content);
@@ -205,31 +298,18 @@ public class Dashboard extends javax.swing.JFrame {
             for (int i = 0; i < cities.length(); i++) {
                 JSONObject city = cities.getJSONObject(i);
                 String name = city.getString("name");
-
+                String country = city.getString("country");
                 if (name.equalsIgnoreCase(cityName)) {
                     found = true;
-                    JButton button = new JButton("View " + name + " (" + city.getString("country") + ")");
-                    button.setBackground(new java.awt.Color(0, 102, 204)); // lighter blue
-                    button.setForeground(java.awt.Color.WHITE);
-                    button.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
-                    button.setFocusPainted(false);
-                    button.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 15, 5, 15));
-                    button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-                    
-                    button.addActionListener(e -> {
-                        
-                        WeatherResult wr = new WeatherResult(name, city.getString("country"));
-                        wr.show();
-                        this.hide();
-                        
-                    });
-
-                    resultPanel.add(button);
+                     generateButtons(name, country);
                 }
             }
 
             if (!found) {
-                resultPanel.add(new JLabel("No city found with that name."));
+                JLabel noCityLabel = new JLabel("No city found with that name.");
+                noCityLabel.setForeground(Color.WHITE);
+                noCityLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                resultPanel.add(noCityLabel);
             }
 
         } catch (Exception e) {
@@ -286,7 +366,9 @@ public class Dashboard extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel resultPanel;
     // End of variables declaration//GEN-END:variables
 }
