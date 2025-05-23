@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import javax.swing.BoxLayout;
@@ -32,7 +33,10 @@ public class Dashboard extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
-        Images.scaleImage(Images.bgPath, bg);
+        System.out.println(Images.BG_PATH);
+        URL bgUrl = Images.getResource(Images.BG_PATH);
+
+        Images.scaleImage(bgUrl, bg);
         fetchCities("");
     }
 
@@ -90,7 +94,7 @@ public class Dashboard extends javax.swing.JFrame {
                 String name = obj.getString("name");
                 String country = obj.getString("country");
                 int id = obj.getInt("id");
-                
+
                 if (city.equals("") && name.equalsIgnoreCase("Cainta")) {
                     city = "Cainta";
                     generateButtons(name, country, id);

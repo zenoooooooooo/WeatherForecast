@@ -26,7 +26,11 @@ public class Configuration {
         }
     }
 
-    public static String getApiKey() {
-        return properties.getProperty("api.key");
+    public static String getWeatherApiKey() {
+        return properties.getProperty("weather.api.key");
+    }
+    
+    public static String getAIApiKey() {
+        return properties.getProperty("ai.api.key");
     }
 }

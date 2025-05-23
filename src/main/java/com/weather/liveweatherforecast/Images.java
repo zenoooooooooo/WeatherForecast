@@ -5,6 +5,7 @@
 package com.weather.liveweatherforecast;
 
 import java.awt.Image;
+import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
@@ -14,13 +15,17 @@ import javax.swing.JLabel;
  */
 public class Images {
 
-    public static String bgPath = "/home/akira/NetBeansProjects/LiveWeatherForecast/src/main/resources/images/bg.jpg";
-    
-    public static void scaleImage(String path, JLabel label) {
-        ImageIcon icon = new ImageIcon(path);
+    public static final String BG_PATH = "/images/bg.jpg";
+
+    public static void scaleImage(URL url, JLabel label) {
+        ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage();
         Image imgScale = img.getScaledInstance(label.getWidth(), label.getHeight(), Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(imgScale);
         label.setIcon(scaledIcon);
+    }
+
+    public static URL getResource(String path) {
+        return Images.class.getResource(path);
     }
 }
