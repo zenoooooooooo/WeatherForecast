@@ -1,7 +1,7 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
-package com.weather.liveweatherforecast;
+package com.weather.weatherforecast;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -17,7 +17,7 @@ import GUI.Dashboard;
  *
  * @author akira
  */
-public class LiveWeatherForecast {
+public class WeatherForecast {
 
     public static void main(String[] args) {
 

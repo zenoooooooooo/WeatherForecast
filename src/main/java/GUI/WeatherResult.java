@@ -4,8 +4,9 @@
  */
 package GUI;
 
-import com.weather.liveweatherforecast.Configuration;
-import com.weather.liveweatherforecast.Images;
+import com.weather.weatherforecast.Configuration;
+import com.weather.weatherforecast.Images;
+import java.awt.Cursor;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -37,12 +38,14 @@ public class WeatherResult extends javax.swing.JFrame {
      */
     public WeatherResult(String city, String country, int id) {
         initComponents();
+        jScrollPane2.getVerticalScrollBar().setUnitIncrement(5);
         setLocationRelativeTo(null);
         setResizable(false);
         URL bgUrl = Images.getResource(Images.BG_PATH);
         Images.scaleImage(bgUrl, bg);
         jLabel1.setText("Weather Forecast - 📍" + city + ", " + country);
         fetchWeatherForecast(city, country, id);
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     private void fetchWeatherForecast(String cityName, String country, int id) {
@@ -56,7 +59,7 @@ public class WeatherResult extends javax.swing.JFrame {
             System.out.println(inputCountry);
             System.out.println(inputCity);
             String content = new String(Files.readAllBytes(Paths.get("src/main/resources/docs/city.list.json")));
-            
+
             JSONArray cities = new JSONArray(content);
 
             for (int i = 0; i < cities.length(); i++) {
@@ -92,7 +95,7 @@ public class WeatherResult extends javax.swing.JFrame {
         double temperature = main.getDouble("temp");
         double feelsLike = main.getDouble("feels_like");
         int pressure = main.getInt("pressure");
-        
+
         int humidityVal = main.getInt("humidity");
 
         JSONArray weatherArr = responseBody.getJSONArray("weather");
@@ -109,12 +112,10 @@ public class WeatherResult extends javax.swing.JFrame {
         JSONObject coord = responseBody.getJSONObject("coord");
         double lon = coord.getDouble("lon");
         double lat = coord.getDouble("lat");
-        
+
         JSONObject clouds = responseBody.getJSONObject("clouds");
         int all = clouds.getInt("all");
-        
-        
-        
+
         temperatureLabel.setText(String.format("%.2f°C", temperature));
         humidityLabel.setText(String.format("💧%d%%", humidityVal));
         conditionLabel.setText(capitalizeFirstLetter(condition));
@@ -125,6 +126,33 @@ public class WeatherResult extends javax.swing.JFrame {
         cloudLabel.setText(all + "%");
         pressureLabel.setText(pressure + " hPa");
         Images.scaleImage(iconUrl, iconLabel);
+
+        switch (status) {
+            case "Clouds":
+                Images.scaleImage(Images.getResource(Images.CLOUDY_PATH), character);
+                break;
+            case "Atmosphere":
+                Images.scaleImage(Images.getResource(Images.MISTY_PATH), character);
+                break;
+            case "Rain":
+                Images.scaleImage(Images.getResource(Images.RAINY_PATH), character);
+                break;
+            case "Drizzle":
+                Images.scaleImage(Images.getResource(Images.RAINY_PATH), character);
+                break;
+            case "Snow":
+                Images.scaleImage(Images.getResource(Images.SNOWY_PATH), character);
+                break;
+            case "Clear":
+                Images.scaleImage(Images.getResource(Images.SUNNY_PATH), character);
+                break;
+            case "Thunderstorm":
+                Images.scaleImage(Images.getResource(Images.THUNDERSTORM_PATH), character);
+                break;
+            default:
+                System.out.println("Unknown weather status: " + status);
+                break;
+        }
 
     }
 
@@ -137,7 +165,10 @@ public class WeatherResult extends javax.swing.JFrame {
         try {
             HttpClient client = HttpClient.newHttpClient();
 
-            String escapedPrompt = JSONObject.quote("Summarize this weather forecast nicely with a greetings first, for a user of all age and digital literacy: " + prompt);
+            String escapedPrompt = JSONObject.quote("Summarize this weather forecast nicely with a greetings first, "
+                    + "your name is Cloudferd, a friendly AI Assistant, "
+                    + "for a user of all age and digital literacy, "
+                    + "suggest something to do that fits with the weather: " + prompt);
 
             String requestBody = String.format("""
             {
@@ -173,6 +204,7 @@ public class WeatherResult extends javax.swing.JFrame {
                 }
             }
             AISummary.setText(summary);
+            AISummary.setCaretPosition(0);
         } catch (IOException | InterruptedException | JSONException e) {
             System.out.println("Error fetching AI content: " + e.getMessage());
             e.printStackTrace();
@@ -204,9 +236,10 @@ public class WeatherResult extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        character = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         AISummary = new javax.swing.JTextArea();
+        jPanel7 = new javax.swing.JPanel();
+        character = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
@@ -225,9 +258,10 @@ public class WeatherResult extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         feelsLikeLabel = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
-        iconLabel = new javax.swing.JLabel();
         statusLabel = new javax.swing.JLabel();
         coordsLabel = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        iconLabel = new javax.swing.JLabel();
         bg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -257,8 +291,8 @@ public class WeatherResult extends javax.swing.JFrame {
                 .addGap(28, 28, 28)
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
-                .addGap(277, 277, 277))
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE)
+                .addGap(389, 389, 389))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -274,42 +308,57 @@ public class WeatherResult extends javax.swing.JFrame {
 
         jPanel2.setBackground(new java.awt.Color(0, 0, 102));
 
-        character.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(0, 51, 153)));
-
         jScrollPane2.setBackground(new java.awt.Color(0, 0, 102));
-        jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(255, 255, 255)), "AI Summary", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Liberation Sans", 0, 15), new java.awt.Color(255, 255, 255))); // NOI18N
+        jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(255, 255, 255)), "Cloudferd", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Monospaced", 1, 15), new java.awt.Color(255, 255, 255))); // NOI18N
         jScrollPane2.setForeground(new java.awt.Color(255, 255, 255));
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane2.setToolTipText("");
         jScrollPane2.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
+        AISummary.setEditable(false);
         AISummary.setBackground(new java.awt.Color(0, 0, 102));
         AISummary.setColumns(20);
-        AISummary.setFont(new java.awt.Font("Monospaced", 1, 14)); // NOI18N
+        AISummary.setFont(new java.awt.Font("Monospaced", 1, 12)); // NOI18N
         AISummary.setForeground(new java.awt.Color(255, 255, 51));
         AISummary.setLineWrap(true);
         AISummary.setRows(5);
         AISummary.setText("\n");
         AISummary.setBorder(null);
+        AISummary.setCaretPosition(0);
         jScrollPane2.setViewportView(AISummary);
+
+        jPanel7.setBackground(new java.awt.Color(0, 0, 51));
+        jPanel7.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(255, 255, 255)));
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(character, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(character, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(36, 36, 36)
-                .addComponent(character, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
+                .addGap(31, 31, 31)
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 526, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(character, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -496,6 +545,8 @@ public class WeatherResult extends javax.swing.JFrame {
 
         jPanel3.setBackground(new java.awt.Color(0, 51, 153));
         jPanel3.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(0, 0, 102)));
+        jPanel3.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jPanel3.setPreferredSize(new java.awt.Dimension(270, 200));
 
         statusLabel.setFont(new java.awt.Font("Monospaced", 1, 15)); // NOI18N
         statusLabel.setForeground(new java.awt.Color(255, 255, 52));
@@ -509,34 +560,50 @@ public class WeatherResult extends javax.swing.JFrame {
         coordsLabel.setText("Lat and Lon");
         coordsLabel.setToolTipText("");
 
+        jPanel6.setBackground(new java.awt.Color(0, 0, 105));
+        jPanel6.setBorder(javax.swing.BorderFactory.createMatteBorder(5, 5, 5, 5, new java.awt.Color(255, 255, 255)));
+        jPanel6.setPreferredSize(new java.awt.Dimension(120, 120));
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(iconLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(iconLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(73, 73, 73)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(iconLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE))
-                .addContainerGap(73, Short.MAX_VALUE))
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(coordsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(coordsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addGap(0, 77, Short.MAX_VALUE)
+                .addComponent(jPanel6, 115, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(77, 77, 77))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(iconLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(20, 20, 20)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(statusLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(coordsLabel)
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 60, 270, 200));
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 60, 273, 200));
         getContentPane().add(bg, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 700, 350));
 
         pack();
@@ -545,7 +612,7 @@ public class WeatherResult extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         Dashboard d = new Dashboard();
         d.show();
-        this.hide();
+        this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -598,6 +665,8 @@ public class WeatherResult extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel pressureLabel;
     private javax.swing.JLabel statusLabel;

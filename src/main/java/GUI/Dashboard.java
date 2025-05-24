@@ -4,9 +4,10 @@
  */
 package GUI;
 
-import com.weather.liveweatherforecast.Images;
+import com.weather.weatherforecast.Images;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.net.URL;
@@ -16,6 +17,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,10 +57,14 @@ public class Dashboard extends javax.swing.JFrame {
         button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
         button.addActionListener(e -> {
+            button.setEnabled(false);  
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            WeatherResult wr = new WeatherResult(city, country, id);
-            wr.show();
-            this.hide();
+            SwingUtilities.invokeLater(() -> {
+                WeatherResult wr = new WeatherResult(city, country, id);
+                wr.show();
+                this.dispose();  
+            });
 
         });
 
@@ -81,7 +87,7 @@ public class Dashboard extends javax.swing.JFrame {
     }
 
     private void fetchCities(String city) {
-
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         boolean found = false;
         resultPanel.removeAll();
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
@@ -118,6 +124,7 @@ public class Dashboard extends javax.swing.JFrame {
 
         resultPanel.revalidate();
         resultPanel.repaint();
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**
@@ -152,7 +159,7 @@ public class Dashboard extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Monospaced", 1, 15)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Dashboard");
+        jLabel1.setText("Dashboard - Weather Forecast");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -161,7 +168,7 @@ public class Dashboard extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addComponent(jLabel1)
-                .addContainerGap(597, Short.MAX_VALUE))
+                .addContainerGap(426, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
